@@ -1,0 +1,67 @@
+﻿@{
+	ViewData["Title"] = "Layout";
+}
+
+<body>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="~/estilos/csscheese&more.css">
+		<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/2.6.0/uicons-bold-rounded/css/uicons-bold-rounded.css'>
+	</head>
+	<nav>
+		<div class="nav-container">
+			<div class="logo">
+				<a>@* <img src="~/imagenes/LogoSw.png" alt="LogoSW" /> *@</a>
+			</div>
+			<ul class="nav-links">
+				<li><a href="~/Home/Index">Inicio</a></li>
+				<li><a href="~/Home/Catalogo">Productos</a></li>
+				<li><a href="~/Home/Eventos">Sobre Nosotros</a></li>
+				<li><a href="~/Home/Contacto">Contacto</a></li>
+				<li><a href="#">Personaliza tu paquete</a></li>
+				<li>
+					<a href="~/Home/Reseñas">Reseñas</a>
+
+				</li>
+			</ul>
+			<div class="icons">
+				<div class="icon"><i class="fi fi-br-search"></i></div>
+				<a href="~/User">
+					<span class="icon"><i class="fi fi-br-user"></i></span>
+				</a>
+				<div class="icon"><i class="fi fi-br-shopping-cart"></i></div>
+			</div>
+		</div>
+	</nav>
+	@RenderBody()
+
+	<footer>
+		<div class="footer-container">
+			<div class="footer-section">
+				<h3>Contacto</h3>
+				<p>Email: info@cheesemorca.com</p>
+				<p>Teléfono: +52 123 456 7890</p>
+			</div>
+			<div class="footer-section">
+				<h3>Enlaces Rápidos</h3>
+				<a href="~/Home/Index">Inicio</a>
+				<a href="~/Home/Catalogo">Productos</a>
+				<a href="~/Home/Eventos">Sobre Nosotros</a>
+
+			</div>
+			<div class="footer-section">
+				<h3>Redes Sociales</h3>
+				<a href="https://www.facebook.com/FernandasPastry?rdid=bWDXsNkdsz7xT7JP&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1A7v7YQgsv%2F" target="_blank" rel="noopener noreferrer">Facebook</a>
+				<a href="https://api.whatsapp.com/send/?phone=8611167843" target="_blank" rel="noopener noreferrer">Whatsapp</a>
+				<a href="https://www.instagram.com/fernandas_pastry" target="_blank" rel="noopener noreferrer">Instagram</a>
+			</div>
+		</div>
+		<div class="copyright">
+			&copy; 2025 Cheese&More. Todos los derechos reservados.
+		</div>
+	</footer>
+
+
+</body>
+

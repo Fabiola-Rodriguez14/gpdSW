@@ -1,0 +1,47 @@
+﻿@model gpdSW.Models.ViewModels.ContactoViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "Contacto";
+    Layout = "~/Views/shared/Layout.cshtml";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto - Cheese&More</title>
+    <link rel="stylesheet" href="~/estilos/ContactoVista.css">
+</head>
+<body>
+
+    <main>
+        <div class="contact-container">
+            <div class="form-container">
+                <h2>Contacto</h2>
+                <p>¡Estamos para ti! ¿Cómo podemos ayudarte?</p>
+                <form method="post" action="~/Home/Contacto">
+                    <input asp-for="nombre" type="text" placeholder="Nombre" required>
+                    <input asp-for="correoelectronico" type="email" placeholder="Correo electrónico" required>
+                    <textarea asp-for="descripcion" placeholder="Descripción" required></textarea>
+                    <button type="submit">Enviar</button>
+                </form>
+            </div>
+            <div class="map-container">
+                <iframe src="https://maps.google.com/maps?q=libreria&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe>
+                <div class="contact-info">
+                    <p>📍 Ubicación</p>
+                    <p>📞 861-982-6731</p>
+                    <p>✉️ charcuterialedezma@gmail.com</p>
+                </div>
+            </div>
+        </div>
+@*         <div class="social-media">
+            <a href="https://www.facebook.com/FernandasPastry?rdid=bWDXsNkdsz7xT7JP&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1A7v7YQgsv%2F" target="_blank" rel="noopener noreferrer">Facebook</a>
+            <a href="https://api.whatsapp.com/send/?phone=8611167843" target="_blank" rel="noopener noreferrer">Whatsapp</a>
+            <a href="https://www.instagram.com/fernandas_pastry" target="_blank" rel="noopener noreferrer">Instagram</a>
+        </div> *@
+
+    </main>
+</body>
+</html>
+

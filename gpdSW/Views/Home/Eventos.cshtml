@@ -1,0 +1,22 @@
+﻿@model gpdSW.Models.ViewModels.EventosViewModel
+@{
+	ViewData["Title"] = "Eventos";
+	Layout = "~/Views/shared/Layout.cshtml";
+}
+
+<section class="productos-destacados">
+	<h2>Eventos</h2>
+	<div class="productos-container">
+		@foreach (var item in Model.listaeventos)
+		{
+			<div class="Productos">
+				<a href="~/Home/Detalleseventosv2/@(item.Id)">
+					<img height="200" width="200" src="~/catalogo/@(item.Id).jfif" alt="Tabla de quesos mediana">
+				</a>
+				<p>@item.Nombre</p>
+
+			</div>
+
+		}
+	</div>
+</section>
