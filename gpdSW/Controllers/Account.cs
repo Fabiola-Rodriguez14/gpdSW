@@ -79,48 +79,56 @@ namespace gpdSW.Controllers
             return View();
         }
 
-        [HttpPost]
-        public IActionResult Login(LoginViewModel vm)
-        {
-            if (string.IsNullOrWhiteSpace(vm.Correo))
-                ModelState.AddModelError("", "Ingrese su correo.");
-            if (string.IsNullOrWhiteSpace(vm.Contraseña))
-                ModelState.AddModelError("", "Ingrese su contraseña.");
-
-            if (ModelState.IsValid)
+            [HttpPost]
+            public IActionResult Login(LoginViewModel vm)
             {
-                var user = repositoryUsuarios.GetAll().FirstOrDefault(x => x.Correo == vm.Correo && x.Contrasena == Encriptacion.Encriptar(vm.Contraseña));
+                if (string.IsNullOrWhiteSpace(vm.Correo))
+                    ModelState.AddModelError("", "Ingrese su correo.");
+                if (string.IsNullOrWhiteSpace(vm.Contraseña))
+                    ModelState.AddModelError("", "Ingrese su contraseña.");
 
-                if (user == null)
+                if (ModelState.IsValid)
                 {
-                    ModelState.AddModelError("", "El nombre o contraseña son incorrectos");
-                    return View(vm);
+                    var user = repositoryUsuarios.GetAll().FirstOrDefault(x => x.Correo == vm.Correo && x.Contrasena == Encriptacion.Encriptar(vm.Contraseña));
+
+                    if (user == null)
+                    {
+                        ModelState.AddModelError("", "El nombre o contraseña son incorrectos");
+                        return View(vm);
+                    }
+
+                    // Claims
+                    //List<Claim> claims =
+                    //[
+                    //    new Claim("Id", user.Id.ToString()),
+                    //    new Claim("Nombre", user.NombreUsuario),
+                    //    new Claim(ClaimTypes.Email, user.Correo),
+                    //    new Claim("Rol", user.Rol.ToString()),
+                    //];
+
+
+                    List<Claim> claims = new List<Claim>();
+                    claims.Add(new Claim("Id", user.Id.ToString()));
+                    claims.Add(new Claim(ClaimTypes.Name, user.NombreUsuario));
+                    claims.Add(new Claim(ClaimTypes.Email, user.Correo));
+                    claims.Add(new Claim("Rol", user.Rol.ToString()));
+
+                    ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    ClaimsPrincipal principal = new ClaimsPrincipal(identity);
+
+                    this.HttpContext.SignInAsync(principal);
+
+                    // Redireccionar según su rol 
+                    if (user.Rol == 2)
+                        return RedirectToAction("Index", "Home", new { area = "User" }); // user
+                    else if (user.Rol == 1)
+                        return RedirectToAction("Index", "Home", new { area = "Admin" }); // admin
+                    else
+                        return RedirectToAction("Index", "Home");
                 }
-
-                // Claims
-                List<Claim> claims =
-                [
-                    new Claim("Id", user.Id.ToString()),
-                    new Claim("Nombre", user.NombreUsuario),
-                    new Claim(ClaimTypes.Email, user.Correo),
-                    new Claim("Rol", user.Rol.ToString()),
-                ];
-
-                ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                ClaimsPrincipal principal = new(identity);
-
-                this.HttpContext.SignInAsync(principal);
-
-                // Redireccionar según su rol 
-                if (user.Rol == 2)
-                    return RedirectToAction("Index", "Home", new { area = "User" }); // user
-                else if (user.Rol == 1)
-                    return RedirectToAction("Index", "Home", new { area = "Admin" }); // admin
-                else
-                    return RedirectToAction("Index", "Home");
+                return View(vm);
             }
-            return View(vm);
-        }
 
         // --
 
@@ -129,27 +137,6 @@ namespace gpdSW.Controllers
         {
             return View();
         }
-
-        //[HttpPost]
-        //public IActionResult RestablecerContraseña(RestContViewModel vm)
-        //{
-        //    if (string.IsNullOrWhiteSpace(vm.Correo))
-        //        ModelState.AddModelError("", "Ingrese su correo, por favor.");
-        //    else if (repositoryUsuarios.GetAll().Any(x => x.Correo.ToLower() == vm.Correo.ToLower()))
-        //    {
-        //        // Generar un OTP
-        //        string otpGenerado = "12345"; // Simulación del código OTP
-
-        //        TempData["OTP"] = otpGenerado;  // Guardar el OTP temporalmente
-        //        TempData["Correo"] = vm.Correo; // Guardar temporalmente el correo
-
-        //        return RedirectToAction("ValidarOTP");
-        //    }
-        //    else
-        //        ModelState.AddModelError("", "El correo ingresado no se encuentra registrado.");
-
-        //    return View();
-        //}
 
         [HttpPost]
         public IActionResult RestablecerContraseña(RestContViewModel vm)

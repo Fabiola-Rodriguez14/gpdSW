@@ -24,7 +24,7 @@ nav {
     align-items: center;
     width: 100%;
     max-width: 1200px;
-    margin: 0; 
+    margin: 0;
     padding: 0;
     margin-left: 5%;
 }
@@ -57,18 +57,6 @@ nav {
 }
 
 
-
-
-.hero {
-    display: flex;
-    flex-direction: column; 
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    text-align: center;
-    padding: 50px;
-    position: relative;
-}
 
 .text {
     text-align: center;
@@ -344,3 +332,104 @@ footer {
     font-size: 12px;
     margin-top: 20px;
 }
+
+
+
+
+
+.producto-detalle-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    display: flex;
+    gap: 30px;
+}
+
+
+.producto-imagen {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+    .producto-imagen img {
+        max-width: 100%;
+        border-radius: 10px;
+    }
+
+.producto-info {
+    flex: 1;
+}
+
+    .producto-info h1 {
+        color: black;
+        margin-bottom: 15px;
+        font-size: 2em;
+    }
+
+    .producto-info .categoria {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 20px;
+    }
+
+
+    .producto-info .precio {
+        color: darkolivegreen;
+        font-size: 1.8em;
+        font-weight: bold;
+        margin-bottom: 25px;
+    }
+
+.promocion {
+    color: darkolivegreen;
+    font-size: 1.8em;
+    font-weight: bold;
+    margin-bottom: 25px;
+    text-decoration: line-through;
+}
+
+.producto-info .boton-carrito {
+    background-color: darkolivegreen;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 25px;
+}
+
+    .producto-info .boton-carrito:hover {
+        background-color: #218838;
+    }
+
+.producto-info .descripcion {
+    margin-top: 20px;
+}
+
+    .producto-info .descripcion h3 {
+        color: #28a745;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+    }
+
+    .producto-info .descripcion p {
+        color: #666;
+        font-size: 0.9em;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+
+    .producto-info .descripcion ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+        .producto-info .descripcion ul li {
+            margin: 10px 0;
+            color: #666;
+            font-size: 0.9em;
+        }
