@@ -257,7 +257,79 @@ namespace gpdSW.Controllers
             return View();
         }
 
+[HttpPost]
+        public async Task<JsonResult> Paypal(/*string precio, string producto*/)
+        {
+            var idusuario = User.FindFirst("Id")?.Value;
 
+            var vm = context.Usuarios.Where(x => x.Id == Convert.ToInt32(idusuario)).Select(x => new VerCarrito
+            {
+                PrecioTotal = x.Carrito.Sum(c =>
+             c.Cantidad * (c.IdProductoNavigation.Preciopromocion.HasValue && c.IdProductoNavigation.Preciopromocion > 0
+                 ? c.IdProductoNavigation.Preciopromocion.Value
+                 : c.IdProductoNavigation.Precio))
+            }).FirstOrDefault();
+
+            bool status = false;
+            string respuesta = string.Empty;
+
+
+           string precio =Convert.ToString(vm.PrecioTotal);
+
+            var precioFormateado = decimal.Parse(precio).ToString("F2", CultureInfo.InvariantCulture);
+            using (var client = new HttpClient())
+            {
+                // INGRESA TUS CREDENCIALES AQUI -> CLIENT ID - SECRET
+                var userName = "AdlMD9kp3u2PA2pQglpUqYwjWRC6CSh6cQqDjw5fg-rPHMZ4-Sp-_Fh3XIEfDLpZU6PnqK-Hm4UoRqZY";
+                var passwd = "EFOFOQrrl12jKJoetMs9tITtM2zWyrSvX_Ok1k2SIYEKmK8gNo1nAxxhzz2iQIX5QClwUZeSBhXXhOoi";
+
+                client.BaseAddress = new Uri("https://api-m.sandbox.paypal.com");
+
+                var authToken = Encoding.ASCII.GetBytes($"{userName}:{passwd}");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authToken));
+
+                var orden = new PayPalOrder()
+                {
+                    intent = "CAPTURE",
+                    purchase_units = new List<Models.PayPal_Order.PurchaseUnit>() {
+                new Models.PayPal_Order.PurchaseUnit() {
+                    amount = new Models.PayPal_Order.Amount() {
+                        currency_code = "MXN",
+                        value = precioFormateado
+                    },
+                    //description = producto
+                }
+            },
+                    application_context = new ApplicationContext()
+                    {
+                        brand_name = "Mi Tienda",
+                        landing_page = "NO_PREFERENCE",
+                        user_action = "PAY_NOW",
+                        return_url = "https://localhost:44377/Account/CompraE",
+                        cancel_url = "https://localhost:44377/Home/Index" 
+                    }
+                };
+
+                var json = JsonConvert.SerializeObject(orden);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PostAsync("/v2/checkout/orders", data);
+                status = response.IsSuccessStatusCode;
+
+                if (status)
+                {
+                    respuesta = await response.Content.ReadAsStringAsync();
+                }
+                else
+                {
+                    var statusCode = response.StatusCode; 
+                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    respuesta = $"Error: {statusCode} - {errorMessage}";
+                }
+            }
+
+            return Json(new { status = status, respuesta = respuesta });
+        }
 
 
 
