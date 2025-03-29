@@ -257,7 +257,203 @@ namespace gpdSW.Controllers
             return View();
         }
 
-[HttpPost]
+
+
+ public IActionResult Carrito(int? id)
+        {
+
+            var idusuario = User.FindFirst("Id")?.Value;
+            if (idusuario == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            if (id == null)
+            {
+                return View();
+            }
+
+            //var cant = carritoRepository.GetAll().Where(x => x.IdUsuario == Convert.ToInt32(idusuario) && x.IdProducto == id);
+
+            var existe = carritoRepository.GetAll()
+                .FirstOrDefault(x => x.IdUsuario == Convert.ToInt32(idusuario) && x.IdProducto == id); //-----Deja de ser una lista y
+
+            var xd = productosRepository.GetAll().FirstOrDefault(x => x.Id == id);
+            if (xd.Stock >= 1)
+            {
+                if (existe != null)
+                {
+
+                    existe.Cantidad += 1;
+                    xd.Stock = xd.Stock - 1;
+
+                    carritoRepository.Update(existe);
+                    productosRepository.Update(xd);
+                }
+                else
+                {
+                    Carrito datos = new()
+                    {
+                        IdUsuario = Convert.ToInt32(idusuario),
+                        IdProducto = id.Value,
+                        Cantidad = 1
+                    };
+                    carritoRepository.Insert(datos);
+                    xd.Stock = xd.Stock - 1;
+                    productosRepository.Update(xd);
+                }
+
+            }
+            else
+                return RedirectToAction("Login", "Account");
+
+
+            return RedirectPreserveMethod("/Home/Productos/" + id + "");
+        }
+
+        public IActionResult VerCarrito()
+        {
+
+
+            var idusuario = User.FindFirst("Id")?.Value;
+            if (idusuario == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            else
+            {
+                var vm = context.Usuarios.Where(x => x.Id == Convert.ToInt32(idusuario)).Select(x => new VerCarrito
+                {
+                    NombreUsuario = x.NombreUsuario,
+                    PrecioTotal = x.Carrito.Sum(c =>
+                 c.Cantidad * (c.IdProductoNavigation.Preciopromocion.HasValue && c.IdProductoNavigation.Preciopromocion > 0
+                     ? c.IdProductoNavigation.Preciopromocion.Value
+                     : c.IdProductoNavigation.Precio)),
+
+                    listitacarrito = x.Carrito.Select(x => new CarritoViewModel
+                    {
+                        Id = x.IdProductoNavigation.Id,
+                        Nombre = x.IdProductoNavigation.Nombre,
+                        Categorias = x.IdProductoNavigation.IdCategoriaNavigation.Categorias,
+                        Precio = x.IdProductoNavigation.Precio,
+                        Preciopromocion = x.IdProductoNavigation.Preciopromocion,
+                        IdUsuario = Convert.ToInt32(idusuario),
+                        Cantidad = x.Cantidad,
+                        IdProducto = x.IdProducto
+                    }).ToList()
+                }).FirstOrDefault();
+
+                // Formateamos el PrecioTotal a dos decimales
+                if (vm?.PrecioTotal.HasValue == true)
+                {
+                    vm.PrecioTotal = Math.Round(vm.PrecioTotal.Value, 2);
+                }
+
+                return View(vm);
+            }
+
+
+        }
+        public IActionResult carritostock(int? id)
+        {
+
+            var idusuario = User.FindFirst("Id")?.Value;
+            if (idusuario == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            if (id == null)
+            {
+                return View();
+            }
+
+            //var cant = carritoRepository.GetAll().Where(x => x.IdUsuario == Convert.ToInt32(idusuario) && x.IdProducto == id);
+
+            var existe = carritoRepository.GetAll()
+                .FirstOrDefault(x => x.IdUsuario == Convert.ToInt32(idusuario) && x.IdProducto == id); //-----Deja de ser una lista y
+
+            var xd = productosRepository.GetAll().FirstOrDefault(x => x.Id == id);
+            if (xd.Stock >= 1)
+            {
+                if (existe != null)
+                {
+
+                    existe.Cantidad += 1;
+                    xd.Stock = xd.Stock - 1;
+
+                    carritoRepository.Update(existe);
+                    productosRepository.Update(xd);
+                }
+                else
+                {
+                    Carrito datos = new()
+                    {
+                        IdUsuario = Convert.ToInt32(idusuario),
+                        IdProducto = id.Value,
+                        Cantidad = 1
+                    };
+                    carritoRepository.Insert(datos);
+                    xd.Stock = xd.Stock - 1;
+                    productosRepository.Update(xd);
+                }
+
+            }
+            else
+                return RedirectToAction("Login", "Account");
+
+
+            return RedirectPreserveMethod("/Home/VerCarrito");
+        }
+        public IActionResult eliminarcarritostock(int? id)
+        {
+
+            var idusuario = User.FindFirst("Id")?.Value;
+            if (idusuario == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            if (id == null)
+            {
+                return View();
+            }
+
+            //var cant = carritoRepository.GetAll().Where(x => x.IdUsuario == Convert.ToInt32(idusuario) && x.IdProducto == id);
+
+            var existe = carritoRepository.GetAll()
+                .FirstOrDefault(x => x.IdUsuario == Convert.ToInt32(idusuario) && x.IdProducto == id); //-----Deja de ser una lista y
+
+            var xd = productosRepository.GetAll().FirstOrDefault(x => x.Id == id);
+            if (existe.Cantidad >= 1)
+            {
+                existe.Cantidad -= 1;
+                if (existe.Cantidad == 0)
+                {
+                    xd.Stock = xd.Stock + 1;
+                    carritoRepository.Update(existe);
+
+                    carritoRepository.Delete(existe);
+
+                    return RedirectPreserveMethod("/Home/VerCarrito");
+                }
+
+
+                xd.Stock = xd.Stock + 1;
+
+
+
+
+                carritoRepository.Update(existe);
+                productosRepository.Update(xd);
+
+
+            }
+
+
+
+            return RedirectPreserveMethod("/Home/VerCarrito");
+        }
+
+
+        [HttpPost]
         public async Task<JsonResult> Paypal(/*string precio, string producto*/)
         {
             var idusuario = User.FindFirst("Id")?.Value;
@@ -330,7 +526,6 @@ namespace gpdSW.Controllers
 
             return Json(new { status = status, respuesta = respuesta });
         }
-
 
 
     }
