@@ -1,0 +1,166 @@
+﻿@{
+	ViewData["Title"] = "CompraE";
+	Layout = "~/Views/shared/Layout.cshtml";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Pago Exitoso - Cheese&More</title>
+	<style>
+
+		.pago-exitoso-container {
+			text-align: center;
+			padding: 40px;
+			max-width: 600px;
+			margin: 0 auto;
+		}
+
+		.icono-exito {
+			font-size: 4em;
+			color: darkolivegreen;
+			margin-bottom: 20px;
+		}
+
+		.pago-exitoso-container h1 {
+			color: darkolivegreen;
+			font-size: 2em;
+			margin-bottom: 20px;
+		}
+
+		.pago-exitoso-container p {
+			color: #666;
+			font-size: 1.2em;
+			margin-bottom: 30px;
+		}
+
+		.botones {
+			display: flex;
+			justify-content: center;
+			gap: 15px;
+		}
+
+		.boton {
+			background-color: darkolivegreen;
+			color: white;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 5px;
+			font-size: 1em;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+			text-decoration: none;
+		}
+
+			.boton:hover {
+				background-color: #218838;
+			}
+
+
+
+		/**/
+		.pago-fallido-container {
+			text-align: center;
+			padding: 40px;
+			max-width: 600px;
+			margin: 0 auto;
+		}
+
+		.icono-fallo {
+			font-size: 4em;
+			color: #dc3545;
+			margin-bottom: 20px;
+		}
+
+		.pago-fallido-container h1 {
+			color: #dc3545;
+			font-size: 2em;
+			margin-bottom: 20px;
+		}
+
+		.pago-fallido-container p {
+			color: #666;
+			font-size: 1.2em;
+			margin-bottom: 30px;
+		}
+
+		.botones {
+			display: flex;
+			justify-content: center;
+			gap: 15px;
+		}
+
+		.boton {
+			background-color: darkolivegreen;
+			color: white;
+			border: none;
+			padding: 10px 20px;
+			border-radius: 5px;
+			font-size: 1em;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+			text-decoration: none;
+		}
+
+			.boton:hover {
+				background-color: #218838;
+			}
+	</style>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+	@if ((bool)ViewData["Status"])
+	{
+		<div class="pago-exitoso-container">
+
+			<div class="icono-exito">
+				<i class="fas fa-check-circle"></i>
+			</div>
+
+
+			<h1>¡Pago Exitoso!</h1>
+			<h4>ID de Transacción : @ViewData["IdTransaccion"].</h4>
+			<p>Gracias por tu compra. Tu pago ha sido procesado correctamente.</p>
+
+
+			<div class="botones">
+				<a href="~/Home/Index" class="boton">Volver al Inicio</a>
+				<a href="~/Home/Catalogo" class="boton">Ver Más Productos</a>
+			</div>
+
+
+			<div class="footer">
+				<h3>Contacto</h3>
+				<p>Email: info@Cheese&More.com</p>
+				<p>Teléfonos: +34 133 4567-7690</p>
+
+			</div>
+		</div>
+
+	}
+	else
+	{
+		
+		<div class="pago-fallido-container">
+			<div class="icono-fallo">
+				<i class="fas fa-times-circle"></i>
+			</div>
+			<h1>¡Pago Fallido!</h1>
+			<p>
+				Lo sentimos, ha ocurrido un error al procesar tu pago. Por favor, intenta nuevamente.
+			</p>
+			<div class="botones">
+				<a href="~/Home/Index" class="boton">Volver al Inicio</a>
+				<a href="~/Home/Catalogo" class="boton">Ver Más Productos</a>
+			</div>
+			<div class="footer">
+				<h3>Contacto</h3>
+				<p>Email: info@Cheese&More.com</p>
+				<p>Teléfonos: +34 133 4567-7690</p>
+			</div>
+		</div>
+	}
+
+</body>
+</html>
