@@ -343,6 +343,48 @@ namespace gpdSW.Controllers
             return RedirectToAction("Index", "Home");
         }
 
+ ///Verificar Compra Paypal
+        public async Task<IActionResult> CompraE()
+        {
+            string token = Request.Query["token"].ToString();
+
+            bool status = false;
+            using (var client = new HttpClient())
+            {
+                // INGRESA TUS CREDENCIALES AQUI -> CLIENT ID - SECRET
+                var userName = "AdlMD9kp3u2PA2pQglpUqYwjWRC6CSh6cQqDjw5fg-rPHMZ4-Sp-_Fh3XIEfDLpZU6PnqK-Hm4UoRqZY";
+                var passwd = "EFOFOQrrl12jKJoetMs9tITtM2zWyrSvX_Ok1k2SIYEKmK8gNo1nAxxhzz2iQIX5QClwUZeSBhXXhOoi";
+
+                client.BaseAddress = new Uri("https://api-m.sandbox.paypal.com");
+
+                var authToken = Encoding.ASCII.GetBytes($"{userName}:{passwd}");
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(authToken));
+
+
+
+
+                var data = new StringContent("{}", Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await client.PostAsync("/v2/checkout/orders/" + token + "/capture", data);
+                status = response.IsSuccessStatusCode;
+
+                ViewData["Status"] = status;
+                if (status)
+                {
+                    var jsonRespuesta = response.Content.ReadAsStringAsync().Result;
+                    PaypalTransaction objeto = JsonConvert.DeserializeObject<PaypalTransaction>(jsonRespuesta);
+
+                    ViewData["IdTransaccion"] = objeto.purchase_units[0].payments.captures[0].id;
+
+                }
+
+                return View();
+            }
+        }
+
+
+        
+
     }
 }
 
