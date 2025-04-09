@@ -7,8 +7,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using System.Net.Mail;
-using System.Net;
+using gpdSW.Models.PayPal_Order;
+using Newtonsoft.Json;
+using System.Net.Http.Headers;
+using System.Text;
+using gpdSW.Models.Paypal_Transaction;
 
 namespace gpdSW.Controllers
 {
@@ -79,56 +82,50 @@ namespace gpdSW.Controllers
             return View();
         }
 
-            [HttpPost]
-            public IActionResult Login(LoginViewModel vm)
+        [HttpPost]
+        public IActionResult Login(LoginViewModel vm)
+        {
+            if (string.IsNullOrWhiteSpace(vm.Correo))
+                ModelState.AddModelError("", "Ingrese su correo.");
+            if (string.IsNullOrWhiteSpace(vm.Contraseña))
+                ModelState.AddModelError("", "Ingrese su contraseña.");
+
+            if (ModelState.IsValid)
             {
-                if (string.IsNullOrWhiteSpace(vm.Correo))
-                    ModelState.AddModelError("", "Ingrese su correo.");
-                if (string.IsNullOrWhiteSpace(vm.Contraseña))
-                    ModelState.AddModelError("", "Ingrese su contraseña.");
+                var user = repositoryUsuarios.GetAll().FirstOrDefault(x => x.Correo == vm.Correo && x.Contrasena == Encriptacion.Encriptar(vm.Contraseña));
 
-                if (ModelState.IsValid)
+                if (user == null)
                 {
-                    var user = repositoryUsuarios.GetAll().FirstOrDefault(x => x.Correo == vm.Correo && x.Contrasena == Encriptacion.Encriptar(vm.Contraseña));
-
-                    if (user == null)
-                    {
-                        ModelState.AddModelError("", "El nombre o contraseña son incorrectos");
-                        return View(vm);
-                    }
-
-                    // Claims
-                    //List<Claim> claims =
-                    //[
-                    //    new Claim("Id", user.Id.ToString()),
-                    //    new Claim("Nombre", user.NombreUsuario),
-                    //    new Claim(ClaimTypes.Email, user.Correo),
-                    //    new Claim("Rol", user.Rol.ToString()),
-                    //];
-
-
-                    List<Claim> claims = new List<Claim>();
-                    claims.Add(new Claim("Id", user.Id.ToString()));
-                    claims.Add(new Claim(ClaimTypes.Name, user.NombreUsuario));
-                    claims.Add(new Claim(ClaimTypes.Email, user.Correo));
-                    claims.Add(new Claim("Rol", user.Rol.ToString()));
-
-                    ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                    ClaimsPrincipal principal = new ClaimsPrincipal(identity);
-
-                    this.HttpContext.SignInAsync(principal);
-
-                    // Redireccionar según su rol 
-                    if (user.Rol == 2)
-                        return RedirectToAction("Index", "Home", new { area = "User" }); // user
-                    else if (user.Rol == 1)
-                        return RedirectToAction("Index", "Home", new { area = "Admin" }); // admin
-                    else
-                        return RedirectToAction("Index", "Home");
+                    ModelState.AddModelError("", "El nombre o contraseña son incorrectos");
+                    return View(vm);
                 }
-                return View(vm);
+
+                // Claims
+                List<Claim> claims =
+                [
+                    new Claim("Id", user.Id.ToString()),
+                    new Claim("Nombre", user.NombreUsuario),
+                    new Claim(ClaimTypes.Email, user.Correo),
+                    new Claim("Rol", user.Rol.ToString()),
+                ];
+
+                ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                ClaimsPrincipal principal = new(identity);
+
+                this.HttpContext.SignInAsync(principal);
+
+                // Redireccionar según su rol 
+                if (user.Rol == 2)
+                    return RedirectToAction("Index", "Home", new { area = "User" }); // user
+                                                                                     //return RedirectToAction("Index", "Home");
+
+                else if (user.Rol == 1)
+                    return RedirectToAction("Index", "Home", new { area = "Admin" }); // admin
+                else
+                    return RedirectToAction("Index", "Home");
             }
+            return View(vm);
+        }
 
         // --
 
@@ -142,117 +139,30 @@ namespace gpdSW.Controllers
         public IActionResult RestablecerContraseña(RestContViewModel vm)
         {
             if (string.IsNullOrWhiteSpace(vm.Correo))
-            {
                 ModelState.AddModelError("", "Ingrese su correo, por favor.");
-                return View();
-            }
-
-            var usuario = repositoryUsuarios.GetAll().FirstOrDefault(x => x.Correo.ToLower() == vm.Correo.ToLower());
-            if (usuario == null)
+            else if (repositoryUsuarios.GetAll().Any(x => x.Correo.ToLower() == vm.Correo.ToLower()))
             {
+                string otpGenerado = new Random().Next(10000, 99999).ToString();
+
+                TempData["OTP"] = otpGenerado;
+                TempData["OTPExpiracion"] = DateTime.Now.AddMinutes(5);
+                TempData["Correo"] = vm.Correo;
+
+                // Enviar correo
+                string correoDestino = vm.Correo;
+                string asunto = "Código de Restablecimiento de Contraseña";
+                string mensaje = $"Tu código de verificación es: {otpGenerado}";
+
+                Correo.EnviarCorreo(correoDestino, asunto, mensaje);
+
+
+                return RedirectToAction("ValidarOTP");
+            }
+            else
                 ModelState.AddModelError("", "El correo ingresado no se encuentra registrado.");
-                return View();
-            }
 
-            Random random = new Random();
-            string otpGenerado = random.Next(100000, 999999).ToString();
-
-            TempData["OTP"] = otpGenerado;
-            TempData["Correo"] = vm.Correo;
-
-            try
-            {
-                EnviarCorreo(vm.Correo, "Código de Restablecimiento", $"Su código OTP es: {otpGenerado}");
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", $"Error al enviar el correo: {ex.InnerException?.Message ?? ex.Message}");
-                return View();
-            }
-
-
-
-            return RedirectToAction("ValidarOTP");
+            return View();
         }
-
-        private void EnviarCorreo(string destino, string asunto, string mensaje)
-        {
-            using (var smtp = new SmtpClient("smtp.gmail.com", 587)) 
-            {
-                smtp.Credentials = new NetworkCredential("chesseandmore99@gmail.com", "zaes vetn msss twoo");
-                smtp.EnableSsl = true; 
-
-
-                //Mensaje sin formato
-                //var correo = new MailMessage
-                //{
-                //    From = new MailAddress("chesseandmore99@gmail.com"),
-                //    Subject = asunto,
-                //    Body = mensaje,
-                //    IsBodyHtml = false
-                //};
-
-                var correo = new MailMessage
-{
-    From = new MailAddress("chesseandmore99@gmail.com"),
-    Subject = asunto,
-    Body = $@"
-        <html>
-        <head>
-            <style>
-                body {{
-                    font-family: Arial, sans-serif;
-                    background-color: #f4f4f4;
-                    margin: 0;
-                    padding: 20px;
-                }}
-                .container {{
-                    max-width: 600px;
-                    background: white;
-                    padding: 20px;
-                    border-radius: 10px;
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                    text-align: center;
-                }}
-                h2 {{
-                    color: #333;
-                }}
-                p {{
-                    font-size: 16px;
-                    color: #555;
-                    line-height: 1.5;
-                }}
-                .footer {{
-                    margin-top: 20px;
-                    font-size: 12px;
-                    color: #777;
-                    text-align: center;
-                }}
-                .logo {{
-                    width: 150px;
-                    margin-bottom: 15px;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class='container'>
-                <img src='https://i.postimg.cc/s2L6SKQS/LogoSw.png class='logo' alt='Logo de Chesse & More'>
-                <h2>{asunto}</h2>
-                <p>{mensaje}</p>
-                <div class='footer'>
-                    <p>&copy; {DateTime.Now.Year} Chesse & More. Todos los derechos reservados.</p>
-                </div>
-            </div>
-        </body>
-        </html>",
-    IsBodyHtml = true
-};
-                correo.To.Add(destino);
-                smtp.Send(correo);
-            }
-        }
-
-
 
         [HttpGet]
         public IActionResult ValidarOTP()
@@ -269,8 +179,10 @@ namespace gpdSW.Controllers
             if (ModelState.IsValid)
             {
                 string otpIngresado = string.Join("", vm.OTP);
+                string otpGenerado = TempData["OTP"]?.ToString();
+                DateTime? otpExpiracion = TempData["OTPExpiracion"] as DateTime?;
 
-                if (otpIngresado == TempData["OTP"].ToString())
+                if (otpIngresado == otpGenerado && otpExpiracion.HasValue && otpExpiracion.Value > DateTime.Now)
                     return RedirectToAction("CambiarContraseña");
                 else
                     return RedirectToAction("ValidacionFallida");
@@ -343,7 +255,7 @@ namespace gpdSW.Controllers
             return RedirectToAction("Index", "Home");
         }
 
- ///Verificar Compra Paypal
+        ///Verificar Compra Paypal
         public async Task<IActionResult> CompraE()
         {
             string token = Request.Query["token"].ToString();
@@ -381,10 +293,6 @@ namespace gpdSW.Controllers
                 return View();
             }
         }
-
-
-        
-
     }
 }
 

@@ -17,6 +17,7 @@
         public string Descripcion { get; set; } = null!;
 
         public string NombreUsuario { get; set; } = null!;
+        public DateTime? Fecha { get; set; }
 
 
     }

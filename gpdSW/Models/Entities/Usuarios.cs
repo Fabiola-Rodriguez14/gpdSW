@@ -17,5 +17,7 @@ public partial class Usuarios
 
     public virtual ICollection<Carrito> Carrito { get; set; } = new List<Carrito>();
 
+    public virtual ICollection<Pedido> Pedido { get; set; } = new List<Pedido>();
+
     public virtual ICollection<Recomendaciones> Recomendaciones { get; set; } = new List<Recomendaciones>();
 }

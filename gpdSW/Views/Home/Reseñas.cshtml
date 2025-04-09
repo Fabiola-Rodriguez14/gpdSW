@@ -11,7 +11,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reseñas - Chesse&More</title>
     <link rel="stylesheet" href="~/estilos/resenas.css">
-
 </head>
 <body>
     <section class="reseñas">
@@ -52,13 +51,13 @@
             const estrellas = document.querySelectorAll('.estrella');
             const valorPuntuacion = document.getElementById('valor-puntuacion');
 
-            // Función para actualizar las estrellas y el valor mostrado
+            
             function actualizarEstrellas(puntuacion) {
-                // Asegurarse de que la puntuación esté dentro del rango válido
+                
                 if (puntuacion < 0) puntuacion = 0;
                 if (puntuacion > 5) puntuacion = 5;
 
-                // Actualizar las estrellas
+                
                 estrellas.forEach((estrella, index) => {
                     if (index < puntuacion) {
                         estrella.textContent = '★';
@@ -67,12 +66,12 @@
                     }
                 });
 
-                // Actualizar el valor mostrado y el campo numérico
+                
                 valorPuntuacion.textContent = puntuacion;
                 inputPuntuacion.value = puntuacion;
             }
 
-            // Evento para las estrellas: al hacer clic
+            
             estrellas.forEach(estrella => {
                 estrella.addEventListener('click', function () {
                     const valor = parseInt(estrella.getAttribute('data-value'));
@@ -80,13 +79,13 @@
                 });
             });
 
-            // Evento para el campo numérico: al cambiar el valor
+            
             inputPuntuacion.addEventListener('input', function () {
                 let puntuacion = parseInt(inputPuntuacion.value);
                 actualizarEstrellas(puntuacion);
             });
 
-            // Inicializar con 0 estrellas seleccionadas
+            
             actualizarEstrellas(0);
         });
     </script>

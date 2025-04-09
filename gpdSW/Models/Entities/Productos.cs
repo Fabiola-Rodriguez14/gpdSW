@@ -21,5 +21,7 @@ public partial class Productos
 
     public virtual ICollection<Carrito> Carrito { get; set; } = new List<Carrito>();
 
+    public virtual ICollection<Detallepedido> Detallepedido { get; set; } = new List<Detallepedido>();
+
     public virtual Catalogo IdCategoriaNavigation { get; set; } = null!;
 }

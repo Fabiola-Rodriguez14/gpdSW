@@ -20,9 +20,13 @@ public partial class CheeseandmoreContext : DbContext
 
     public virtual DbSet<Catalogo> Catalogo { get; set; }
 
+    public virtual DbSet<Detallepedido> Detallepedido { get; set; }
+
     public virtual DbSet<Detalleseventosv2> Detalleseventosv2 { get; set; }
 
     public virtual DbSet<Eventos> Eventos { get; set; }
+
+    public virtual DbSet<Pedido> Pedido { get; set; }
 
     public virtual DbSet<Productos> Productos { get; set; }
 
@@ -32,7 +36,7 @@ public partial class CheeseandmoreContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=localhost;database=cheeseandmore;user=root;password=root", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.28-mysql"));
+        => optionsBuilder.UseMySql("server=localhost;user=root;password=root;database=cheeseandmore", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.34-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -78,6 +82,33 @@ public partial class CheeseandmoreContext : DbContext
                 .HasColumnName("categorias");
         });
 
+        modelBuilder.Entity<Detallepedido>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("detallepedido");
+
+            entity.HasIndex(e => e.IdPedido, "id_pedido");
+
+            entity.HasIndex(e => e.IdProducto, "id_producto");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Cantidad).HasColumnName("cantidad");
+            entity.Property(e => e.IdPedido).HasColumnName("id_pedido");
+            entity.Property(e => e.IdProducto).HasColumnName("id_producto");
+            entity.Property(e => e.Precio)
+                .HasPrecision(10, 2)
+                .HasColumnName("precio");
+
+            entity.HasOne(d => d.IdPedidoNavigation).WithMany(p => p.Detallepedido)
+                .HasForeignKey(d => d.IdPedido)
+                .HasConstraintName("detallepedido_ibfk_1");
+
+            entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.Detallepedido)
+                .HasForeignKey(d => d.IdProducto)
+                .HasConstraintName("detallepedido_ibfk_2");
+        });
+
         modelBuilder.Entity<Detalleseventosv2>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
@@ -110,6 +141,36 @@ public partial class CheeseandmoreContext : DbContext
             entity.Property(e => e.Nombre)
                 .HasMaxLength(60)
                 .HasColumnName("nombre");
+        });
+
+        modelBuilder.Entity<Pedido>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity.ToTable("pedido");
+
+            entity.HasIndex(e => e.IdUsuario, "id_usuario");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Estado)
+                .HasDefaultValueSql("'pendiente'")
+                .HasColumnType("enum('pendiente','entregado','cancelado')")
+                .HasColumnName("estado");
+            entity.Property(e => e.Fecha).HasColumnName("fecha");
+            entity.Property(e => e.IdUsuario).HasColumnName("id_usuario");
+            entity.Property(e => e.Instrucciones)
+                .HasMaxLength(500)
+                .HasColumnName("instrucciones");
+            entity.Property(e => e.Telefono)
+                .HasMaxLength(15)
+                .HasColumnName("telefono");
+            entity.Property(e => e.Total)
+                .HasPrecision(10, 2)
+                .HasColumnName("total");
+
+            entity.HasOne(d => d.IdUsuarioNavigation).WithMany(p => p.Pedido)
+                .HasForeignKey(d => d.IdUsuario)
+                .HasConstraintName("pedido_ibfk_1");
         });
 
         modelBuilder.Entity<Productos>(entity =>
@@ -148,11 +209,11 @@ public partial class CheeseandmoreContext : DbContext
 
             entity.ToTable("recomendaciones");
 
-            entity.HasIndex(e => e.IdUsuarios, "id_usuarios");
+            entity.HasIndex(e => e.IdUsuarios, "recomendaciones_ibfk_1");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.Descripcion)
-                .HasMaxLength(256)
+                .HasMaxLength(60)
                 .HasColumnName("descripcion");
             entity.Property(e => e.Estrellas).HasColumnName("estrellas");
             entity.Property(e => e.Fecha)
@@ -162,6 +223,7 @@ public partial class CheeseandmoreContext : DbContext
 
             entity.HasOne(d => d.IdUsuariosNavigation).WithMany(p => p.Recomendaciones)
                 .HasForeignKey(d => d.IdUsuarios)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("recomendaciones_ibfk_1");
         });
 

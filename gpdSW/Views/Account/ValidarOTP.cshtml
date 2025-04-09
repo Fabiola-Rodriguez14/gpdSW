@@ -14,7 +14,7 @@
         <h2 style="font-family:'Times New Roman'">Verificación OTP</h2>
 
         <form method="post" action="~/Account/ValidarOTP">
-            <p>Por favor ingrese la OTP (contraseña de un solo uso) enviada a su correo registrado para completar su verificación. El código podría llegar a la bandeja de correo no deseado (SPAM) en algunas ocasiones.</p>
+            <p>Por favor ingrese la OTP (contraseña de un solo uso) enviada a su correo registrado para completar su verificación.</p>
 
             <div class="otp-inputs">
                 <input type="text" maxlength="1" asp-for="OTP[0]">
@@ -22,7 +22,6 @@
                 <input type="text" maxlength="1" asp-for="OTP[2]">
                 <input type="text" maxlength="1" asp-for="OTP[3]">
                 <input type="text" maxlength="1" asp-for="OTP[4]">
-                <input type="text" maxlength="1" asp-for="OTP[5]">
             </div>
 
             @Html.ValidationSummary()

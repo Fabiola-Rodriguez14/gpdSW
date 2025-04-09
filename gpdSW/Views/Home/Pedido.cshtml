@@ -1,0 +1,333 @@
+﻿@model gpdSW.Models.ViewModels.PedidoViewModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    ViewData["Title"] = "VerCarrito";
+    Layout = "~/Views/shared/Layout.cshtml";
+}
+
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu Carrito</title>
+    <style>
+        body {
+            font-family: 'Century Gothic', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #bfc59a;
+            padding: 15px 30px;
+        }
+
+        .tabla-carrito {
+            margin-top: 10px;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .encabezado {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+            nav ul li a {
+                text-decoration: none;
+                color: black;
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+        .icons span {
+            margin-left: 15px;
+            cursor: pointer;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .contenedor {
+            display: flex;
+            gap: 30px;
+        }
+
+        .instrucciones {
+            width: 75%;
+        }
+
+            .instrucciones textarea {
+                width: 100%;
+                height: 120px;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                font-size: 14px;
+                resize: none;
+            }
+
+        .calendario {
+            width: 25%;
+            text-align: center;
+        }
+
+        #calendar {
+            width: 100%;
+            max-width: 300px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+        }
+
+        .calendar-header,
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+        }
+
+        .calendar-day {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+            .calendar-day:hover, .selected {
+                background-color: black;
+                color: white;
+            }
+
+        .btn-pagar {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 12px;
+            background-color: #bfc59a;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+            .btn-pagar:hover {
+                background-color: #a3a883;
+            }
+    </style>
+</head>
+<body>
+
+    <main>
+        <h1 style="font-family:'Century Gothic';">Tu Pedido</h1>
+        <div class="tabla-carrito">
+            <div class="encabezado">
+                <span>Productos</span>
+                <span>Cantidad</span>
+                <span>Total</span>
+            </div>
+            @foreach(var p in Model.ProductosCarrito)
+            {
+                <div class="item-carrito">
+                    <span>@p.Nombre</span>
+                    <span>@p.Cantidad</span>
+                    <span>@(p.Cantidad * p.Precio)</span>
+                </div>
+
+                <input type="hidden" value="@p.Id" />
+                <input type="hidden" value="@p.Nombre />
+                <input type="hidden" value="@p.Cantidad" />
+                <input type="hidden" value="@p.Precio" />
+            }
+        </div>
+
+        <form method="post" action="~/Home/Pedido">
+            <div class="contenedor">
+                <div class="instrucciones">
+                    <label for="notas">Instrucciones especiales de entrega</label>
+                    <textarea id="notas" asp-for="Instrucciones"></textarea>
+                </div>
+
+                <div class="">
+                    <label for="notas">Teléfono de Contacto</label>
+                    <textarea id="notas" asp-for="Telefono"></textarea>
+                </div>
+
+                @* <div class="calendario">
+                    <h3>Seleccionar fecha de entrega</h3>
+                    <div id="calendar"></div>
+                    <input type="hidden" id="FechaSeleccionada" asp-for="Fecha" />
+
+                </div> *@
+                <div id="calendar"></div>
+                <input type="hidden" id="FechaSeleccionada" asp-for="Fecha" />
+            </div>
+
+            @Html.ValidationSummary()
+
+            <button class="btn-pagar" type="submit">Finalizar Pedido</button>
+        </form>
+    </main>
+
+@*     <script>
+        function renderizarCalendario() {
+            const contenedorCalendario = document.getElementById('calendar');
+            contenedorCalendario.innerHTML = '';
+
+            const fechaActual = new Date();
+            const mesActual = fechaActual.getMonth();
+            const añoActual = fechaActual.getFullYear();
+
+            const diasEnMes = new Date(añoActual, mesActual + 1, 0).getDate();
+            const primerDiaDelMes = new Date(añoActual, mesActual, 1).getDay();
+
+            const cabecera = document.createElement('div');
+            cabecera.classList.add('calendar-header');
+            ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].forEach(dia => {
+                const diaElemento = document.createElement('div');
+                diaElemento.textContent = dia;
+                cabecera.appendChild(diaElemento);
+            });
+            contenedorCalendario.appendChild(cabecera);
+
+            const cuadrículaDeDias = document.createElement('div');
+            cuadrículaDeDias.classList.add('calendar-days');
+
+            for (let i = 0; i < primerDiaDelMes; i++) {
+                cuadrículaDeDias.appendChild(document.createElement('div'));
+            }
+
+            for (let dia = 1; dia <= diasEnMes; dia++) {
+                const diaElemento = document.createElement('div');
+                diaElemento.classList.add('calendar-day');
+                diaElemento.textContent = dia;
+                diaElemento.addEventListener('click', () => {
+                    document.querySelectorAll('.calendar-day.selected').forEach(d => d.classList.remove('selected'));
+                    diaElemento.classList.add('selected');
+                    document.getElementById('FechaSeleccionada').value = `${añoActual}-${mesActual + 1}-${dia}`; // Guarda la fecha
+                });
+                cuadrículaDeDias.appendChild(diaElemento);
+            }
+
+            contenedorCalendario.appendChild(cuadrículaDeDias);
+        }
+
+        document.addEventListener('DOMContentLoaded', renderizarCalendario);
+    </script>
+ *@
+   
+    @using System.Text.Json
+
+    <script>
+        const fechasOcupadas = @Html.Raw(JsonSerializer.Serialize(ViewBag.FechasOcupadas));
+
+        function renderizarCalendario() {
+            const contenedorCalendario = document.getElementById('calendar');
+            contenedorCalendario.innerHTML = '';
+
+            const fechaActual = new Date();
+            const mesesAMostrar = 3; // <-- Cambiar para más meses
+
+            // Contenedor principal para los meses
+            const filaDeMeses = document.createElement('div');
+            filaDeMeses.style.display = 'flex';
+            filaDeMeses.style.overflowX = 'auto';
+
+            for (let offset = 0; offset < mesesAMostrar; offset++) {
+                const fecha = new Date(fechaActual.getFullYear(), fechaActual.getMonth() + offset, 1);
+                const mes = fecha.getMonth();
+                const año = fecha.getFullYear();
+                const diasEnMes = new Date(año, mes + 1, 0).getDate();
+                const primerDiaDelMes = new Date(año, mes, 1).getDay();
+
+                // Contenedor para un mes específico
+                const contenedorMes = document.createElement('div');
+                contenedorMes.style.marginRight = '50px'; // Espaciado entre los meses
+                contenedorMes.style.minWidth = '250px'; // Tamaño de cada mes
+
+                // Título del mes
+                const titulo = document.createElement('h3');
+                titulo.textContent = `${fecha.toLocaleString('default', { month: 'long' })} ${año}`;
+                titulo.style.marginTop = '20px';
+                contenedorMes.appendChild(titulo);
+
+                // Cabecera (Días de la semana)
+                const cabecera = document.createElement('div');
+                cabecera.classList.add('calendar-header');
+                ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].forEach(dia => {
+                    const diaElemento = document.createElement('div');
+                    diaElemento.textContent = dia;
+                    cabecera.appendChild(diaElemento);
+                });
+                contenedorMes.appendChild(cabecera);
+
+                // Días del mes
+                const cuadrículaDeDias = document.createElement('div');
+                cuadrículaDeDias.classList.add('calendar-days');
+
+                for (let i = 0; i < primerDiaDelMes; i++) {
+                    cuadrículaDeDias.appendChild(document.createElement('div'));
+                }
+
+                for (let dia = 1; dia <= diasEnMes; dia++) {
+                    const diaElemento = document.createElement('div');
+                    diaElemento.classList.add('calendar-day');
+                    diaElemento.textContent = dia;
+
+                    const fechaCompleta = `${año}-${String(mes + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+
+                    if (fechasOcupadas.includes(fechaCompleta)) {
+                        diaElemento.style.backgroundColor = '#ff6b6b'; // rojo para ocupado
+                        diaElemento.style.color = '#fff';
+                    }
+
+                    diaElemento.addEventListener('click', () => {
+                        if (!fechasOcupadas.includes(fechaCompleta)) {
+                            document.querySelectorAll('.calendar-day.selected').forEach(d => d.classList.remove('selected'));
+                            diaElemento.classList.add('selected');
+                            document.getElementById('FechaSeleccionada').value = fechaCompleta;
+                        }
+                    });
+
+                    cuadrículaDeDias.appendChild(diaElemento);
+                }
+
+                contenedorMes.appendChild(cuadrículaDeDias);
+                filaDeMeses.appendChild(contenedorMes);
+            }
+
+            contenedorCalendario.appendChild(filaDeMeses); 
+        }
+
+        document.addEventListener('DOMContentLoaded', renderizarCalendario);
+    </script>
+
+</body>
+</html>

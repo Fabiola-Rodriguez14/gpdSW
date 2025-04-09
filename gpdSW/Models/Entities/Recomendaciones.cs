@@ -11,9 +11,9 @@ public partial class Recomendaciones
 
     public string Descripcion { get; set; } = null!;
 
-    public int? IdUsuarios { get; set; }
+    public int IdUsuarios { get; set; }
 
-    public DateTime Fecha { get; set; }
+    public DateTime? Fecha { get; set; }
 
-    public virtual Usuarios? IdUsuariosNavigation { get; set; }
+    public virtual Usuarios IdUsuariosNavigation { get; set; } = null!;
 }

@@ -76,7 +76,7 @@
 				color: #444;
 			}
 
-		/* Productos con filtros */
+	
 		.productos-con-filtros {
 			display: flex;
 			max-width: 1200px;
@@ -115,7 +115,7 @@
 					}
 
 						.filtros ul li a:hover {
-							color: #28a745; /* Verde al pasar el mouse */
+							color: #28a745; 
 						}
 
 		.productos {
@@ -163,39 +163,7 @@
 				margin-top: 10px;
 			}
 
-		/* Pie de página */
-		footer {
-			background-color: #B6BB92;
-			padding: 40px 0;
-		}
-
-		.footer-container {
-			display: flex;
-			justify-content: space-around;
-			text-align: left;
-			flex-wrap: wrap;
-		}
-
-		.footer-section h3, .footer-section h4 {
-			font-size: 18px;
-		}
-
-		.footer-section p {
-			margin: 5px 0;
-		}
-
-		.footer-section a {
-			text-decoration: none;
-			color: black;
-		}
-
-		.whatsapp-btn {
-			background-color: #D3D8B6;
-			border: none;
-			padding: 10px 15px;
-			cursor: pointer;
-			border-radius: 5px;
-		}
+		
 
 		.promocion {
 			color: darkolivegreen; /* Verde principal para el precio */
@@ -213,6 +181,7 @@
 <body>
 
 	<div class="hero">
+		<h1>Nuestro catalogo!</h1>
 
 	</div>
 
@@ -250,7 +219,16 @@
 					{
 						<p class="promocion">$@(item.Precio) <p class="precio">$@(item.Preciopromocion)</p> </p>
 					}
+
+					@if (item.Stock==0)
+					{
+						<p>Sin stock</p>
+					}
+					else
+					{
 					<p>@(item.Stock) Piezas disponibles</p>
+
+					}
 				</div>
 
 			}

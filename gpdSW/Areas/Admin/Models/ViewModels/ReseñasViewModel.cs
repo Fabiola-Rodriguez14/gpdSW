@@ -14,8 +14,6 @@
 
         public string NombreUsuario { get; set; } = null!;
         public string Correo { get; set; } = null!;
-        public DateTime Fecha { get; set; }
-
 
     }
 }

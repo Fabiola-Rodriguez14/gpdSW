@@ -1,0 +1,211 @@
+﻿@model IEnumerable<gpdSW.Areas.Admin.Models.ViewModels.VerPedidosViewModel>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheese&More2 - Pedidos</title>
+    <style>
+        /* Estilos generales simplificados */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f5e3;
+            color: #4a4a4a;
+            font-size: 14px;
+        }
+
+        header {
+            background-color: #d4a373;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+
+        nav {
+            background-color: #a87c52;
+            padding: 8px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 0.9em;
+        }
+
+        section {
+            padding: 15px;
+            margin: 15px auto;
+            max-width: 1200px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            color: #d4a373;
+            font-size: 1.3em;
+            margin: 0 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #d4a373;
+        }
+
+        /* Tabla compacta */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f5f5f5;
+            color: #a87c52;
+            font-weight: normal;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* Estados simplificados */
+        .estado {
+            font-size: 0.8em;
+            padding: 3px 6px;
+            border-radius: 3px;
+        }
+
+        .pendiente {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .completado {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .cancelado {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Acciones compactas */
+        .accion {
+            color: #a87c52;
+            text-decoration: none;
+            margin-right: 8px;
+            font-size: 0.8em;
+        }
+
+        .accion:hover {
+            text-decoration: underline;
+        }
+
+        /* Filtros compactos */
+        .filtros {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filtro {
+            border: 1px solid #ddd;
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        footer {
+            background-color: #a87c52;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Cheese&More2</h1>
+        <p>Panel de Pedidos</p>
+    </header>
+
+    <nav>
+        <a href="#productos">Productos</a>
+        <a href="#pedidos">Pedidos</a>
+        <a href="#reportes">Reportes</a>
+    </nav>
+
+    <section>
+        <h2>Últimos Pedidos</h2>
+        <div class="filtros">
+            <select class="filtro">
+                <option>Todos los estados</option>
+                <option>Pendientes</option>
+                <option>Completados</option>
+            </select>
+            <input type="date" class="filtro">
+            <input type="text" class="filtro" placeholder="Buscar cliente...">
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var p in Model)
+                {
+                    <tr>
+                        <td>#@(p.IdPedido)</td>
+                        <td>@(p.Fecha)</td>
+                        <td>@(p.NombreCliente)</td>
+                        <td>$@(p.Total)</td>
+                        <td><span class="estado @(p.Estado)">@(p.Estado)</span></td>
+                        <td>
+                            <a href="~/Admin/Home/Pedido/@(p.IdPedido)" class="accion">Ver detalles</a>
+                            <a href="#" class="accion">Editar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+
+    <footer>
+        <p>&copy; 2023 Cheese&More2</p>
+    </footer>
+
+    <script>
+        // Función básica para mostrar detalles al hacer clic en Ver
+        document.querySelectorAll('.accion').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const pedidoId = this.closest('tr').querySelector('td:first-child').textContent;
+                alert(`Mostrando pedido ${pedidoId}`);
+            });
+        });
+    </script>
+</body>
+</html>
